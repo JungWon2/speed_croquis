@@ -14,8 +14,8 @@ public class ImageManager : MonoBehaviour {
 	HashSet<string> imageTypes = new HashSet<string>();
 	List<string> imageList = new List<string>();
 
-
 	string dirPath;
+	int cnt =0;
 
 	void addImageFile(string fileName)
 	{
@@ -26,29 +26,46 @@ public class ImageManager : MonoBehaviour {
 		Debug.Log (fileName);
 	}
 
+	int getNumberingCnt()
+	{
+		int ret = cnt;
+		cnt++;
+		if (imageList.Count <= cnt)
+			cnt = 0;
+		return ret;
+	}
+
 	// Use this for initialization
 	void Start () {
 
 		imageTypes.Add (".png");
 		imageTypes.Add (".jpg");
-		dirPath = Application.persistentDataPath + "/image/";
-		Debug.Log ("dir:"+System.Environment.CurrentDirectory);
 
-		Debug.Log (dirPath);
-		textLog.text = "dirPath==>" + dirPath;
-		DirectoryInfo di = new DirectoryInfo(dirPath);
-		if (di.Exists == false)
-		{
-			di.Create();
+		dirPath = System.Environment.CurrentDirectory + "/image/";
+		refresh ();
+	}
+
+	void refresh()
+	{
+		DirectoryInfo di = new DirectoryInfo (dirPath);
+		if (di.Exists == false) {
+			di.Create ();
 		}
 
 		foreach (var file in di.GetFiles()) {
-			//Debug.Log (file.Name);	
 			addImageFile (file.Name);
-
 		}
 
+		for (int i = 0; i < imageList.Count; i++) {
+			string temp = imageList[i];
+			int randomIndex = UnityEngine.Random.Range(i, imageList.Count);
+			imageList[i] = imageList[randomIndex];
+			imageList[randomIndex] = temp;
+		}
 
+//		foreach (var file in imageList) {
+//			Debug.Log (file + "=====");
+//		}
 	}
 
 	
@@ -63,30 +80,18 @@ public class ImageManager : MonoBehaviour {
 	}
 	public void nextImageBtn()
 	{
-		foreach (var file in imageList) {
-			Debug.Log (file);
-		}
-		Debug.Log ("==========");
+		int cnt = getNumberingCnt ();
 
-		string fileName = imageList [0];
+		string fileName = imageList[cnt];
 		string filePath = makeFilePath(fileName);
-		Debug.Log (filePath);
 
-		Texture2D tex = null;
-		byte[] fileData;
-
-		fileData = File.ReadAllBytes(filePath);
-		tex = new Texture2D(2, 2);
+		byte[] fileData = File.ReadAllBytes(filePath);
+		Texture2D tex = new Texture2D(2, 2);
 		textLog.text = filePath;
-		tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
+		tex.LoadImage(fileData); 
 
 		Rect rect = new Rect(0, 0, tex.width, tex.height);
 		//mainImage.GetComponent<SpriteRenderer>().sprite = Sprite.Create(tex, rect, new Vector2(0.5f, 0.5f)); 
 		croquis.sprite = Sprite.Create(tex, rect, new Vector2(0.5f, 0.5f)); 
-		//bg.sprite = spriteToUse;
-		//FileStream fs = new FileStream(Application.persistentDataPath + "/image/configuration.json", FileMode.CreateNew);
-		//byte[] info = new UTF8Encoding(true).GetBytes(source);
-
-		//fs.Write(info, 0, info.Length);
 	}
 }
