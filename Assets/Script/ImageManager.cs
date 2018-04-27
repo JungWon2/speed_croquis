@@ -10,12 +10,18 @@ public class ImageManager : MonoBehaviour {
 	public UnityEngine.UI.Image bgImage;
 	public UnityEngine.UI.Image croquis;
 	public UnityEngine.UI.Text textLog;
+	public UnityEngine.UI.Text textTime;
+
+	int width;
+	int height;
+
+	int remaingSec = 65;
 
 	HashSet<string> imageTypes = new HashSet<string>();
 	List<string> imageList = new List<string>();
 
 	string dirPath;
-	int cnt =0;
+	int imgCnt =0;
 
 	void addImageFile(string fileName)
 	{
@@ -28,10 +34,10 @@ public class ImageManager : MonoBehaviour {
 
 	int getNumberingCnt()
 	{
-		int ret = cnt;
-		cnt++;
-		if (imageList.Count <= cnt)
-			cnt = 0;
+		int ret = imgCnt;
+		imgCnt++;
+		if (imageList.Count <= imgCnt)
+			imgCnt = 0;
 		return ret;
 	}
 
@@ -40,9 +46,11 @@ public class ImageManager : MonoBehaviour {
 
 		imageTypes.Add (".png");
 		imageTypes.Add (".jpg");
-
+		textLog.text = "start";
 		dirPath = System.Environment.CurrentDirectory + "/image/";
 		refresh ();
+
+		StartCoroutine (updateSec());
 	}
 
 	void refresh()
@@ -68,11 +76,50 @@ public class ImageManager : MonoBehaviour {
 //		}
 	}
 
-	
+	void endTime()
+	{
+		nextImage ();
+	}
+
+	IEnumerator updateSec()
+	{
+		while(true)
+		{
+			remaingSec--;
+			if (remaingSec < 0) {
+				endTime ();
+			} else {
+				string displayTime = timeToText (remaingSec);
+				textTime.text = displayTime;
+			}
+			yield return new WaitForSeconds (1);
+		
+		}
+	}
+
+	string timeToText(int sec)
+	{
+		int minDisplay = sec / 60;
+		int secDisplay = sec % 60;
+
+		string ret = String.Format ("{0:D2}:{1:D2}", minDisplay, secDisplay);
+		//string ret = minDisplay.ToString() + ":" + secDisplay.ToString ();
+		return ret;
+	}
+
 	// Update is called once per frame
 	void Update () {
-		
+		keyInput ();
 	}
+
+	void keyInput()
+	{
+		if (Input.GetKey(KeyCode.Escape))
+		{
+			Application.Quit ();
+		}
+	}
+
 
 	string makeFilePath(string fileName)
 	{
@@ -80,10 +127,16 @@ public class ImageManager : MonoBehaviour {
 	}
 	public void nextImageBtn()
 	{
+		nextImage ();
+	}
+
+	void nextImage()
+	{
 		int cnt = getNumberingCnt ();
 
 		string fileName = imageList[cnt];
 		string filePath = makeFilePath(fileName);
+		textLog.text = filePath;
 
 		byte[] fileData = File.ReadAllBytes(filePath);
 		Texture2D tex = new Texture2D(2, 2);
@@ -92,6 +145,10 @@ public class ImageManager : MonoBehaviour {
 
 		Rect rect = new Rect(0, 0, tex.width, tex.height);
 		//mainImage.GetComponent<SpriteRenderer>().sprite = Sprite.Create(tex, rect, new Vector2(0.5f, 0.5f)); 
+		Debug.Log("width:"+ tex.width);
+		Debug.Log ("height:" + tex.height);
+
 		croquis.sprite = Sprite.Create(tex, rect, new Vector2(0.5f, 0.5f)); 
+	//	croquis.sprite.
 	}
 }
