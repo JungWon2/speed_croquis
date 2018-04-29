@@ -29,7 +29,7 @@ public class ImageManager : MonoBehaviour {
 		if(false ==imageTypes.Contains (extension))
 			return;
 		imageList.Add (fileName);
-		Debug.Log (fileName);
+		//Debug.Log (fileName);
 	}
 
 	int getNumberingCnt()
@@ -50,6 +50,8 @@ public class ImageManager : MonoBehaviour {
 		dirPath = System.Environment.CurrentDirectory + "/image/";
 		refresh ();
 
+		remaingSec = 60 * 5;
+		nextImage ();
 		StartCoroutine (updateSec());
 	}
 
@@ -130,25 +132,31 @@ public class ImageManager : MonoBehaviour {
 		nextImage ();
 	}
 
+	void outText(string str)
+	{
+		textLog.text = str;
+	}
+
 	void nextImage()
 	{
 		int cnt = getNumberingCnt ();
 
-		string fileName = imageList[cnt];
-		string filePath = makeFilePath(fileName);
+		string fileName = imageList [cnt];
+		string filePath = makeFilePath (fileName);
+
+
 		textLog.text = filePath;
 
-		byte[] fileData = File.ReadAllBytes(filePath);
-		Texture2D tex = new Texture2D(2, 2);
-		textLog.text = filePath;
-		tex.LoadImage(fileData); 
+		byte[] fileData = File.ReadAllBytes (filePath);
+		Texture2D tex = new Texture2D (2, 2);
 
-		Rect rect = new Rect(0, 0, tex.width, tex.height);
-		//mainImage.GetComponent<SpriteRenderer>().sprite = Sprite.Create(tex, rect, new Vector2(0.5f, 0.5f)); 
-		Debug.Log("width:"+ tex.width);
-		Debug.Log ("height:" + tex.height);
+		tex.LoadImage (fileData); 
 
-		croquis.sprite = Sprite.Create(tex, rect, new Vector2(0.5f, 0.5f)); 
-	//	croquis.sprite.
-	}
+		Rect rect = new Rect (0, 0, tex.width, tex.height);
+
+		croquis.sprite = Sprite.Create (tex, rect, new Vector2 (0.5f, 0.5f)); 
+		croquis.preserveAspect = true;
+		croquis.SetNativeSize();
+	}	//	croquis.sprite.
+	
 }
