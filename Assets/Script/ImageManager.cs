@@ -11,11 +11,14 @@ public class ImageManager : MonoBehaviour {
 	public UnityEngine.UI.Image croquis;
 	public UnityEngine.UI.Text textLog;
 	public UnityEngine.UI.Text textTime;
+	public UnityEngine.UI.Text curTimeText;
 
 	int width;
 	int height;
 
-	int remaingSec = 65;
+	const int MAX_TIME = 60 * 5;
+
+	int remaingSec;
 
 	HashSet<string> imageTypes = new HashSet<string>();
 	List<string> imageList = new List<string>();
@@ -50,7 +53,7 @@ public class ImageManager : MonoBehaviour {
 		dirPath = System.Environment.CurrentDirectory + "/image/";
 		refresh ();
 
-		remaingSec = 60 * 5;
+		remaingSec = MAX_TIME;
 		nextImage ();
 		StartCoroutine (updateSec());
 	}
@@ -90,9 +93,15 @@ public class ImageManager : MonoBehaviour {
 			remaingSec--;
 			if (remaingSec < 0) {
 				endTime ();
+				remaingSec = MAX_TIME;
 			} else {
 				string displayTime = timeToText (remaingSec);
 				textTime.text = displayTime;
+
+				string curTime = DateTime.Now.ToString("HH:mm");
+				Debug.Log (curTime);
+				curTimeText.text = curTime;
+
 			}
 			yield return new WaitForSeconds (1);
 		
